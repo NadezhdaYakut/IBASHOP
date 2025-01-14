@@ -8,7 +8,7 @@
 Если у вас возникли сложности или вопросы по использованию пакета наишите на электрнонную почту nn@mail.ru
 
 ## Архитектура проекта
-Архитектура проекта представлена в файле [С4](https://github.com/NadezhdaYakut/IBASHOP/blob/main/%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80/%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0) 
+Архитектура проекта представлена в файле [C4](https://github.com/NadezhdaYakut/IBASHOP/blob/main/%D0%90%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0)
 
 ## API
 Документация API для работы с проектом представлена в файле [SWagger](https://github.com/NadezhdaYakut/IBASHOP/blob/main/API)

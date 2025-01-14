@@ -1,1 +1,526 @@
-Здесь из блокнота добавляем файлик SWAGGER
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/STABROVSKAYAYA/Iba/1.0.0
+  - description: SwaggerHub API Auto Mocking 
+    url: https://virtserver.swaggerhub.com/STABROVSKAYAYA/IBA/1.0.0
+info:
+  version: "1.0.0"
+  title: API for the E-Shop
+  description: The API for the E-Shop
+  contact:
+    email: nadezhda@gmail.com
+   
+tags: 
+ - name: user
+   description: all users
+ - name: client
+   description: Auth user
+ - name: economist
+   description: Auth user with role - economist
+
+paths:
+  /login:
+    post:
+      tags:
+        - user
+      summary: Enter user to system
+      description: Enter user to system with to login and password
+      requestBody: 
+       required: true
+       content: 
+        application/json:
+         schema: 
+          type: object
+          required:
+           - username
+           - password
+          properties:
+            username:
+             type: string
+             description: Username user
+             example: "nn@mail.rururu"
+            password::
+             type: string
+             format: password
+             description: Password user
+             example: "passworddddddd"
+      responses:
+        '200':
+         description: Lucky auth
+         content: 
+           application/json:
+            schema:
+             type: object
+             properties:
+               token: 
+                 type: string
+                 description: Auth token
+                 example: "dsfdsfdsfdsfsdfsfsdf"
+        '400':
+         description:  wrong way
+        '401':
+         description: ivalid username or password
+        '500':
+         description:  Server SOS
+       
+  /productgroup/{id}:
+    get:
+      tags:
+       - user
+       - client
+       - economist
+      summary: View selected product group
+      description: View selected product group by identifier
+      parameters: 
+        - name: id
+          in: path
+          description: Product group identifier
+          required: true
+          schema:
+            type: integer
+            example: 12345
+      responses:
+        '200':
+          description: Product group list
+          content:
+           application/json:
+            schema:
+             $ref: '#/components/schemas/productgroup'  
+        '404':
+         description: The requested product group was not found
+         
+         
+  /product:
+    get:
+      tags:
+        - user
+        - client
+        - economist
+      summary: View all products
+      description: Getting a list of all products in the store
+      responses:
+        '200':
+          description: product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/product'
+        '500':
+          description: The server cannot fulfill the request
+    post:
+      tags:
+        - economist
+      summary: Adding a product card
+      description: Economist adds new product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/productNew'
+      responses:
+        '201':
+          description: Product added successfully
+        '400':
+          description: This field is required
+        '404':
+          description: Supplier not found
+        '403':
+          description: No permission to perform operation (add) 
+        '500':
+          description: Internal Server Error          
+  
+    patch:
+      tags:
+       - economist
+      summary: Changing product information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the product to be changed
+          required: true
+          schema:
+            type: integer
+            example: 323
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+      responses:
+        '200':
+          description: Product information updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+        '400':
+          description: Invalid field value
+        '404':
+          description: Product not found
+        '403':
+          description: No permission to operate
+        '500':
+          description: Internal Server Error    
+          
+  /orders:
+    post:
+      tags:
+        - client
+      summary: Add product to cart (create order)
+      operationId: createOrder
+      security:
+        - bearerAuth: []    
+      description: Add product to cart
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/orderNew'
+        '429':
+          description: Large number of requests
+        '500':
+          description: Internal Server Error
+
+  /items:
+    post:
+      tags:
+        - client
+      summary: Add item to cart
+      operationId: addItem
+      security:
+        - bearerAuth: [] 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orderProduct'
+      responses:
+        '201':
+          description: Product added
+        '400':
+          description: This field is required
+        '404':
+          description: Product not found
+        '408':
+          description: Request execution timeout
+ 
+  /items/{id}:
+    delete:
+      tags:
+        - client
+      summary: Remove item from order
+      operationId: deleteItem
+      security:
+        - bearerAuth: []    
+      description: Removing a product from an order by its ID
+      parameters:
+        - name: id
+          in: path
+          description: Product ID to delete
+          required: true
+          schema:
+            type: integer
+            example: 54321
+      responses:
+        '200':
+          description: The product has been successfully removed from the order
+        '404':
+          description: The product is not in the order
+        '500':
+          description: Internal Server Error     
+  
+  /promotion
+    post:
+      tags:
+       - economist
+      summary: Add information about the promotion
+      description: Economist adds new information about the promotion
+      security:
+       - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/promotionNew'
+      responses:
+        '201':
+          description: The promotion was created successfully
+        '400':
+          description: This field is required
+        '404':
+          description: Product group not found
+        '403':
+          description: No rights to add shares
+        '500':
+          description: Internal Server Error    
+  
+  patch:
+      tags:
+       - economist
+      summary: Changing promotion information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the promotion to be changed
+          required: true
+          schema:
+            type: integer
+            example: 323
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/promotionNew'
+      responses:
+        '200':
+          description: Promotion information updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/promotionNew'
+        '400':
+          description: Invalid field value
+        '404':
+          description: Promotion not found
+        '403':
+          description: No permission to operate
+        '500':
+          description: Internal Server Error 
+       
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - price_with_discount
+        - group_id
+        - suppler
+        - promotion_id
+        - count_of_warehouse
+      properties:
+        id:
+          type: integer
+          description: product identifier
+          example: 323
+        name:
+          type: string
+          description: product name
+          example: "Kostroma cheese"
+        price:
+          type: number
+          format: decimal
+          description: Product price 
+          example: 4.99
+        price_with_discount:
+          type: number
+          format: decimal
+          description: Product price with discount
+          example: 4.00
+        group_id:
+          type: number
+          description: Product Group Identifier
+          example: 12345
+        suppler:
+          type: string
+          description: Supplier name
+          example: "Postavy gorod"
+        count_of_warehouse:
+          type: integer
+          description: Quantity of goods in stock
+          example: 300
+        promotion_id:
+          type: integer
+          description: promotion identifier
+          example: 333323
+          
+    productNew:
+      type: object
+      required:
+        - name
+        - price
+        - price_with_discount
+        - group_id
+        - count_of_warehouse
+        - promotion_id
+      properties:
+        name:
+          type: string
+          description: Product name
+          example: "Kostroma cheese"
+        price:
+          type: number
+          format: decimal
+          description: Product price 
+          example: 4.99
+        price_with_discount:
+          type: number
+          format: decimal
+          description: Product price with discount
+          example: 4.00
+        group_id:
+          type: number
+          description: Product Group Identifier
+          example: 12345
+        count_of_warehouse:
+          type: integer
+          description: Quantity of goods in stock
+          example: 300
+        promotion_id:
+          type: integer
+          description: promotion identifier
+          example: 333323
+
+    productgroup:
+      type: object
+      required:
+        - name
+        - id
+      properties:
+        id:
+          type: integer
+          description: groupe identifier
+          example: 12345
+        name:
+          type: string
+          description: group name
+          example: "Cheese"
+    
+    promotionNew:
+      type: object
+      required:
+        - name
+        - value
+        - group_id
+        - amountforpromotion
+        properties:
+        name:
+          type: string
+          description: Promotion name
+          example: "It's not just mice that love cheese"
+        value:
+          type: string
+          description: Description of the promotion
+          example: "3 percent of the amount"
+        group_id:
+          type: number
+          description: Product Group Identifier
+          example: 12345
+        amountforpromotion:
+          type: number
+          description: The amount to which the promotion applies
+          example: 12345
+        
+    orderNew:
+      type: object
+      required:
+        - client_id
+        - product_id
+        - order_number
+      properties:
+        client_id:
+          type: integer
+          description: Identifier client
+          example: 123789654
+        product_id:
+          type: integer
+          description: Identifier product adds to order
+          example: 321
+        order_number:
+          type: string
+          description: Order number
+          example: "8910/010125"
+
+    order:
+      type: object
+      required:
+        - client_id
+        - status
+        - order_date
+        - order_cost
+        - order_with_promotion
+      properties:
+        id:
+          type: integer
+          description: Identifier order
+          example: 65478
+        client_id:
+          type: integer
+          description: Identifier client
+          example: 987456
+        status:
+          type: string
+          description: Order status
+          example: "New"
+        order_date:
+          type: string
+          format: date
+          description: Date order
+          example: "01-01-2025"
+        order_cost:
+          type: number
+          format: decimal
+          description: Order cost (without discount)
+          example: 100.5
+        order_with_promotion:
+          type: number
+          format: decimal
+          description: Order cost (with discount)
+          example: 80.5
+        products:
+          type: array
+          description: List of products in the order
+          items:
+            $ref: '#/components/schemas/product'
+            
+    orderProduct:
+      type: object
+      required:
+        - order_id
+        - product_id
+        - quantity
+      properties:
+        order_id:
+          type: integer
+          description: Identifier order
+          example: 3258
+        product_id:
+          type: integer
+          description: Identifier product
+          example: 98745
+        quantity:
+          type: integer
+          description: Quantity of goods
+          example: 2
+        price:
+          type: number
+          format: decimal
+          description: Product price
+          example: 3.25
